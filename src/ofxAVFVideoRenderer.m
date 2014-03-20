@@ -139,7 +139,7 @@ int count = 0;
                 _currentTime = kCMTimeZero;
                 _duration = asset.duration;
                 _frameRate = [videoTrack nominalFrameRate];
-                
+              
                 self.playerItem = [AVPlayerItem playerItemWithAsset:asset];
                 [self.playerItem addObserver:self forKeyPath:@"status" options:0 context:&kItemStatusContext];
                 

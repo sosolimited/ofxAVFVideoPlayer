@@ -59,9 +59,9 @@ bool ofxAVFVideoPlayer::loadMovie(string path)
         [moviePlayer loadFilePath:[NSString stringWithUTF8String:path.c_str()]];
     }
 	[pool release];
-    
-    bShouldPlay = false;
-    return true;
+  
+  bShouldPlay = false;
+  return true;
 }
 
 //--------------------------------------------------------------
