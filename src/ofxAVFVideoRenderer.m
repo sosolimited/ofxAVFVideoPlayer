@@ -650,7 +650,9 @@ int count = 0;
 {
     double time = self.duration * position;
 //    [self.player seekToTime:CMTimeMakeWithSeconds(time, NSEC_PER_SEC)];
-    [_player seekToTime:CMTimeMakeWithSeconds(time, _duration.timescale)];
+    [_player seekToTime:CMTimeMakeWithSeconds(time, _duration.timescale)
+        toleranceBefore:CMTimeMakeWithSeconds(0, _duration.timescale)
+         toleranceAfter:CMTimeMakeWithSeconds(0, _duration.timescale)];
 }
 
 //--------------------------------------------------------------
