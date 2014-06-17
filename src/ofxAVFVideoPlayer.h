@@ -30,7 +30,11 @@ public:
     void                update();
     void                play();
     void                stop();
-    
+  
+    // Soso, for memory reduction
+    void                disableAmplitude();
+    void                enableAmplitude();
+  
     float               getAmplitude(int channel = 0);
     float               getAmplitudeAt(float pos, int channel = 0);
     float *             getAllAmplitudes();
@@ -70,7 +74,7 @@ public:
     float               getVolume();
     
     void                setPosition(float pct);
-	void                setTime(float seconds);
+    void                setTime(float seconds);
     void                setPositionInSeconds(float seconds);
     void                setFrame(int frame); // frame 0 = first frame...
     void                setBalance(float balance);
@@ -98,11 +102,12 @@ protected:
     ofLoopType currentLoopState;
     
     bool bTheFutureIsNow;
-    
+  
+    bool bAmpEnabled; //soso
     bool bPaused;
-	bool bShouldPlay;
+    bool bShouldPlay;
 	
-	float scrubToTime;
+    float scrubToTime;
     bool bNewFrame;
     bool bHavePixelsChanged;
     

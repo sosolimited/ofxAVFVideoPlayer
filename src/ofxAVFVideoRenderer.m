@@ -43,6 +43,8 @@
 @synthesize amplitudes = _amplitudes;
 @synthesize numAmplitudes = _numAmplitudes;
 
+@synthesize bAmpEnabled = _bAmpEnabled; //soso
+
 int count = 0;
 
 //--------------------------------------------------------------
@@ -155,7 +157,7 @@ int count = 0;
 
                     // Create and attach video output. 10.8 Only!!!
                     self.playerItemVideoOutput = [[AVPlayerItemVideoOutput alloc] initWithPixelBufferAttributes:[self pixelBufferAttributes]];
-					[self.playerItemVideoOutput autorelease];
+                    [self.playerItemVideoOutput autorelease];
                     if (self.playerItemVideoOutput) {
                         [(AVPlayerItemVideoOutput *)self.playerItemVideoOutput setSuppressesPlayerRendering:YES];
                     }
@@ -259,12 +261,15 @@ int count = 0;
                                                                                                                                                              NULL,
                                                                                                                                                              kCMSampleBufferFlag_AudioBufferList_Assure16ByteAlignment,  // pass in something else
                                                                                                                                                              &buffer);
-                                                                                                     
-                                                                                                     for (int bufferCount = 0; bufferCount < audioBufferList.mNumberBuffers; bufferCount++) {
-                                                                                                         [_amplitudes appendBytes:audioBufferList.mBuffers[bufferCount].mData
-                                                                                                                           length:audioBufferList.mBuffers[bufferCount].mDataByteSize];
+                                                                                                   
+                                                                                                     // soso
+                                                                                                     if (_bAmpEnabled){
+                                                                                                       for (int bufferCount = 0; bufferCount < audioBufferList.mNumberBuffers; bufferCount++) {
+                                                                                                           [_amplitudes appendBytes:audioBufferList.mBuffers[bufferCount].mData
+                                                                                                                             length:audioBufferList.mBuffers[bufferCount].mDataByteSize];
+                                                                                                       }
                                                                                                      }
-                                                                                                     
+                                                                                                   
                                                                                                      CFRelease(buffer);
                                                                                                      CFRelease(sampleBuffer);
                                                                                                  }
@@ -338,6 +343,8 @@ int count = 0;
 
     [super dealloc];
 }
+
+
 
 //--------------------------------------------------------------
 - (void)play
@@ -670,6 +677,33 @@ int count = 0;
 - (void)setVolume:(float)volume
 {
     self.player.volume = volume;
+}
+
+//soso
+//--------------------------------------------------------------
+- (void)enableAmplitude
+{
+  
+  //TODO: Reload amplitude data
+  
+}
+
+//soso
+//--------------------------------------------------------------
+- (void)disableAmplitude
+{
+  
+  // Clear out amplitude data
+  if (_amplitudes) {
+    [_amplitudes release];
+    _amplitudes = nil;
+  }
+  
+  // Remake empty amplitudes for safety
+  _amplitudes = [[NSMutableData data] retain];
+  [_amplitudes setLength:0];
+  _numAmplitudes = 0;
+  
 }
 
 @end

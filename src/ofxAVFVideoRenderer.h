@@ -24,13 +24,13 @@
     // New school video stuff
     id _playerItemVideoOutput;
     CVOpenGLTextureCacheRef _textureCache;
-	CVOpenGLTextureRef _latestTextureFrame;
-	CVPixelBufferRef _latestPixelFrame;
+    CVOpenGLTextureRef _latestTextureFrame;
+    CVPixelBufferRef _latestPixelFrame;
 
     // Old school video stuff
     CARenderer * _layerRenderer;
     
-	BOOL _useTexture;
+    BOOL _useTexture;
     BOOL _useAlpha;
     
     CGSize _videoSize;
@@ -46,7 +46,10 @@
     BOOL _bAudioLoaded;
     BOOL _bPaused;
     BOOL _bMovieDone;
-    	
+  
+    //soso
+    BOOL _bAmpEnabled;
+  
     // New school audio stuff
     NSMutableData *_amplitudes;
     int _numAmplitudes;
@@ -66,6 +69,9 @@
 @property (nonatomic, assign, getter = isPaused, setter = setPaused:) BOOL bPaused;
 @property (nonatomic, assign, readonly, getter = isMovieDone) BOOL bMovieDone;
 @property (nonatomic, assign, readonly) BOOL isPlaying;
+
+// soso
+@property (nonatomic, assign) BOOL bAmpEnabled;
 
 @property (nonatomic, assign) BOOL useAlpha;
 @property (nonatomic, assign) BOOL useTexture;
@@ -99,6 +105,10 @@
 - (void)bindTexture;
 - (void)unbindTexture;
 - (void)pixels:(unsigned char *)outbuf;
+
+//soso
+-(void)enableAmplitude;
+-(void)disableAmplitude;
 
 // Old school video stuff
 - (void)render;

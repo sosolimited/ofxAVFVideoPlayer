@@ -25,6 +25,8 @@ ofxAVFVideoPlayer::ofxAVFVideoPlayer()
     currentLoopState = OF_LOOP_NORMAL;
     
     bTheFutureIsNow = false;
+  
+    bAmpEnabled = true;  // soso: True by default, ofxVideoPlayerObject sets to false
 }
 
 //--------------------------------------------------------------
@@ -160,6 +162,23 @@ bool ofxAVFVideoPlayer::isFrameNew()
     return bNewFrame;
 }
 
+//soso
+//--------------------------------------------------------------
+void ofxAVFVideoPlayer::disableAmplitude(){
+
+  bAmpEnabled = false;
+  [moviePlayer disableAmplitude];
+}
+
+//soso
+//--------------------------------------------------------------
+void ofxAVFVideoPlayer::enableAmplitude(){
+  
+  bAmpEnabled = true;
+  [moviePlayer enableAmplitude];
+  
+}
+
 //--------------------------------------------------------------
 float ofxAVFVideoPlayer::getAmplitude(int channel)
 {
@@ -169,6 +188,10 @@ float ofxAVFVideoPlayer::getAmplitude(int channel)
 //--------------------------------------------------------------
 float ofxAVFVideoPlayer::getAmplitudeAt(float pos, int channel)
 {
+    // soso
+    if (!bAmpEnabled)
+      return -1;
+  
     if (bTheFutureIsNow == false) return 0;
     
     pos = ofClamp(pos, 0, 1);
