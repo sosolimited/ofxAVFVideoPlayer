@@ -35,6 +35,50 @@ ofxAVFVideoPlayer::~ofxAVFVideoPlayer()
 	close();
 }
 
+
+// soso
+//--------------------------------------------------------------
+void ofxAVFVideoPlayer::unloadMovie(){
+  
+  pixels.clear();
+	
+  if (moviePlayer != nil) {
+    
+    if (!isUnloaded){
+      isUnloaded  = true;
+      [moviePlayer unload];
+    }
+    
+  }
+  
+  //  bInitialized = false;
+  bNewFrame = false;
+}
+
+// soso
+//--------------------------------------------------------------
+void ofxAVFVideoPlayer::reloadMovie(string path){
+  
+  //Need to reallocate pixels
+  //reallocatePixels();
+  
+	if (Poco::icompare(path.substr(0, 7), "http://")  == 0 ||
+      Poco::icompare(path.substr(0, 8), "https://") == 0 ||
+      Poco::icompare(path.substr(0, 7), "rtsp://")  == 0) {
+    [moviePlayer reloadURLPath:[NSString stringWithUTF8String:path.c_str()]];
+  }
+  else {
+    path = ofToDataPath(path, false);
+    [moviePlayer reloadFilePath:[NSString stringWithUTF8String:path.c_str()]];
+  }
+  
+  bTheFutureIsNow = moviePlayer.theFutureIsNow;
+  
+  isUnloaded = false;
+  
+}
+
+
 //--------------------------------------------------------------
 bool ofxAVFVideoPlayer::loadMovie(string path)
 {

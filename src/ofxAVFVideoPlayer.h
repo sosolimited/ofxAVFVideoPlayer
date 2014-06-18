@@ -96,7 +96,12 @@ public:
     void                firstFrame();
     void                nextFrame();
     void                previousFrame();
-    
+  
+    // soso
+    bool                isUnloaded = false;
+    void                unloadMovie();
+    void                reloadMovie(string path);
+  
 protected:
     
     ofLoopType currentLoopState;

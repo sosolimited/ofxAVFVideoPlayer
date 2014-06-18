@@ -47,8 +47,11 @@
     BOOL _bPaused;
     BOOL _bMovieDone;
   
+    BOOL _bIsUnloaded;
+  
     //soso
     BOOL _bAmpEnabled;
+    BOOL _bReleasedAmp;
   
     // New school audio stuff
     NSMutableData *_amplitudes;
@@ -96,6 +99,13 @@
 - (void)loadFilePath:(NSString *)filePath;
 - (void)loadURLPath:(NSString *)urlPath;
 - (void)loadURL:(NSURL *)url;
+
+// soso
+- (void)reloadFilePath:(NSString *)filePath;
+- (void)reloadURLPath:(NSString *)urlPath;
+-(void)reloadURL:(NSURL *)url;
+-(void)unload;
+//end soso
 
 - (void)play;
 - (void)stop;

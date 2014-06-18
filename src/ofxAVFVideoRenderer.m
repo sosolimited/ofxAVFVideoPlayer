@@ -73,6 +73,10 @@ int count = 0;
         _frameRate = 0.0;
         _playbackRate = 1.0;
         _bLoops = false;
+      
+        //soso
+        _bReleasedAmp = false;
+        _bIsUnloaded = false;
     }
     return self;
 }
@@ -98,6 +102,109 @@ int count = 0;
 {
     [self loadURL:[NSURL URLWithString:urlPath]];
 }
+
+//soso
+//--------------------------------------------------------------
+- (void)reloadFilePath:(NSString *)filePath
+{
+  [self reloadURL:[NSURL fileURLWithPath:[filePath stringByStandardizingPath]]];
+}
+
+//soso
+//--------------------------------------------------------------
+- (void)reloadURLPath:(NSString *)urlPath
+{
+  [self reloadURL:[NSURL URLWithString:urlPath]];
+}
+
+
+// Unload the loaded part of the video...leave the meta data
+//soso
+//--------------------------------------------------------------
+-(void)unload{
+  
+  if (!_bIsUnloaded){
+  _bIsUnloaded = true;
+  
+  [self stop];
+    
+  // Remake video output objects
+  [self.player.currentItem removeOutput:self.playerItemVideoOutput];
+  [self.playerItemVideoOutput release];
+  self.playerItemVideoOutput = nil;
+  
+  // Clear image/texture caches
+  if (_textureCache != NULL) {
+    CVOpenGLTextureCacheRelease(_textureCache);
+    _textureCache = NULL;
+  }
+  
+  if (_latestTextureFrame != NULL) {
+    CVOpenGLTextureRelease(_latestTextureFrame);
+    _latestTextureFrame = NULL;
+    CVOpenGLTextureCacheFlush(_textureCache, 0);
+  }
+  
+  if (_latestPixelFrame != NULL) {
+    CVPixelBufferRelease(_latestPixelFrame);
+    _latestPixelFrame = NULL;
+  }
+  
+  // TODO: Unsure if we have to check for the future
+  //if (self.theFutureIsNow){
+    // release the audio buffer data
+    if (_bAmpEnabled){
+      if (_amplitudes) {
+        [_amplitudes release];
+        _amplitudes = nil;
+        _bReleasedAmp = true;
+      }
+    }
+    
+    if (_amplitudes) {
+      [_amplitudes setLength:0];
+    }
+    
+    _numAmplitudes = 0;
+    
+    
+  }
+
+  // TODO: Unsure if we should change the current time to zero
+  _currentTime = kCMTimeZero;
+}
+
+
+//soso
+//--------------------------------------------------------------
+//Alex's test code to reload only parts of the object
+-(void)reloadURL:(NSURL *)url
+{
+  
+  // Remake video output object and add it as an output
+  self.playerItemVideoOutput = [[AVPlayerItemVideoOutput alloc] initWithPixelBufferAttributes:[self pixelBufferAttributes]];
+  if (self.playerItemVideoOutput) {
+    [(AVPlayerItemVideoOutput *)self.playerItemVideoOutput setSuppressesPlayerRendering:YES];
+  }
+  
+  [self.player.currentItem addOutput:self.playerItemVideoOutput];
+  
+  _bIsUnloaded = false;
+  
+  // Reallocate texture caches
+  // Create CVOpenGLTextureCacheRef for optimal CVPixelBufferRef to GL texture conversion.
+  if (self.useTexture && _textureCache==NULL) {
+    CVReturn err = CVOpenGLTextureCacheCreate(kCFAllocatorDefault, NULL,
+                                              CGLGetCurrentContext(), CGLGetPixelFormat(CGLGetCurrentContext()),
+                                              NULL, &_textureCache);
+    //(CFDictionaryRef)ctxAttributes, &_textureCache);
+    if (err != noErr) {
+      NSLog(@"Error at CVOpenGLTextureCacheCreate %d", err);
+    }
+  }
+}
+
+
 
 //--------------------------------------------------------------
 - (void)loadURL:(NSURL *)url
@@ -157,7 +264,7 @@ int count = 0;
 
                     // Create and attach video output. 10.8 Only!!!
                     self.playerItemVideoOutput = [[AVPlayerItemVideoOutput alloc] initWithPixelBufferAttributes:[self pixelBufferAttributes]];
-                    [self.playerItemVideoOutput autorelease];
+                    //[self.playerItemVideoOutput autorelease];  //soso, We'll release manually
                     if (self.playerItemVideoOutput) {
                         [(AVPlayerItemVideoOutput *)self.playerItemVideoOutput setSuppressesPlayerRendering:YES];
                     }
@@ -408,39 +515,47 @@ int count = 0;
     if (self.theFutureIsNow == NO) return YES;
     
     if (![self isLoaded]) return NO;
+  
+  if (!_bIsUnloaded){
 
-    // Check our video output for new frames.
-    CMTime outputItemTime = [self.playerItemVideoOutput itemTimeForHostTime:CACurrentMediaTime()];
-    if ([self.playerItemVideoOutput hasNewPixelBufferForItemTime:outputItemTime]) {
-        // Get pixels.
-        if (_latestPixelFrame != NULL) {
-            CVPixelBufferRelease(_latestPixelFrame);
-            _latestPixelFrame = NULL;
-        }
-        _latestPixelFrame = [self.playerItemVideoOutput copyPixelBufferForItemTime:outputItemTime
-                                                            itemTimeForDisplay:NULL];
-        
-        if (self.useTexture) {
-            // Create GL texture.
-            if (_latestTextureFrame != NULL) {
-                CVOpenGLTextureRelease(_latestTextureFrame);
-                _latestTextureFrame = NULL;
-                CVOpenGLTextureCacheFlush(_textureCache, 0);
-            }
-            
-            CVReturn err = CVOpenGLTextureCacheCreateTextureFromImage(NULL, _textureCache, _latestPixelFrame, NULL, &_latestTextureFrame);
-            if (err != noErr) {
-                NSLog(@"Error creating OpenGL texture %d", err);
-            }
-        }
-                
-        // Update time.
-        _currentTime = self.player.currentItem.currentTime;
-        _duration = self.player.currentItem.duration;
-        
-        return YES;
+    if (self.playerItemVideoOutput != nil){
+      
+      // Check our video output for new frames.
+      CMTime outputItemTime = [self.playerItemVideoOutput itemTimeForHostTime:CACurrentMediaTime()];
+
+      
+      if ([self.playerItemVideoOutput hasNewPixelBufferForItemTime:outputItemTime]) {
+          // Get pixels.
+          if (_latestPixelFrame != NULL) {
+              CVPixelBufferRelease(_latestPixelFrame);
+              _latestPixelFrame = NULL;
+          }
+          _latestPixelFrame = [self.playerItemVideoOutput copyPixelBufferForItemTime:outputItemTime
+                                                              itemTimeForDisplay:NULL];
+          
+          if (self.useTexture) {
+              // Create GL texture.
+              if (_latestTextureFrame != NULL) {
+                  CVOpenGLTextureRelease(_latestTextureFrame);
+                  _latestTextureFrame = NULL;
+                  CVOpenGLTextureCacheFlush(_textureCache, 0);
+              }
+              
+              CVReturn err = CVOpenGLTextureCacheCreateTextureFromImage(NULL, _textureCache, _latestPixelFrame, NULL, &_latestTextureFrame);
+              if (err != noErr) {
+                  NSLog(@"Error creating OpenGL texture %d", err);
+              }
+          }
+                  
+          // Update time.
+          _currentTime = self.player.currentItem.currentTime;
+          _duration = self.player.currentItem.duration;
+          
+          return YES;
+      }
     }
-    
+  
+  }
     return NO;
 }
 
