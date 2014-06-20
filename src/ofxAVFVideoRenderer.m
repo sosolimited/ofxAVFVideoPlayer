@@ -53,7 +53,7 @@ int count = 0;
     self = [super init];
     if (self) {
         _bTheFutureIsNow = (NSClassFromString(@"AVPlayerItemVideoOutput") != nil);
-        NSLog(@"Is this the future? %d", _bTheFutureIsNow);
+        //NSLog(@"Is this the future? %d", _bTheFutureIsNow);
         
         if (self.theFutureIsNow) {
             self.player = [[AVPlayer alloc] init];
@@ -177,7 +177,7 @@ int count = 0;
 
 //soso
 //--------------------------------------------------------------
-//Alex's test code to reload only parts of the object
+//Alex's code to reload only parts of the object
 -(void)reloadURL:(NSURL *)url
 {
   
@@ -226,7 +226,7 @@ int count = 0;
     }
     _numAmplitudes = 0;
         
-    NSLog(@"Loading %@", [url absoluteString]);
+    //NSLog(@"Loading %@", [url absoluteString]);
     
     AVURLAsset *asset = [AVURLAsset URLAssetWithURL:url options:nil];
     NSString *tracksKey = @"tracks";

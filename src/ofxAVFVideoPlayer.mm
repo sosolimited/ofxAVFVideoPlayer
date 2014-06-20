@@ -51,7 +51,7 @@ void ofxAVFVideoPlayer::unloadMovie(){
     
   }
   
-  //  bInitialized = false;
+  bInitialized = false; 
   bNewFrame = false;
 }
 
