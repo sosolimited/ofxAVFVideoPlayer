@@ -83,6 +83,8 @@ void ofxAVFVideoPlayer::reloadMovie(string path){
 bool ofxAVFVideoPlayer::loadMovie(string path)
 {
 
+  moviePath = path; // soso: Using moviePath to save path for update() warning message.
+
     if (bInitialized) {
         close();
     }
@@ -179,7 +181,8 @@ void ofxAVFVideoPlayer::update()
         bHavePixelsChanged = bNewFrame;
     }
     else {
-        //ofLogNotice("ofxAVFVideoPlayer::update()") << "Movie player not ready";
+//        ofLogNotice("ofxAVFVideoPlayer::update()") << "Movie player not ready";
+      ofLogWarning("ofxAVFVideoPlayer::update() -- "+moviePath+" not ready"); // soso
     }
 }
 
@@ -533,7 +536,7 @@ bool ofxAVFVideoPlayer::setPixelFormat(ofPixelFormat newPixelFormat)
         // If we already have a movie loaded we need to reload
         // the movie with the new settings correctly allocated.
         if (isLoaded()) {
-            loadMovie(moviePath);
+            loadMovie(moviePath);  // TODO: wa: moviePath never seems to get set.
         }
     }
 	return true;
