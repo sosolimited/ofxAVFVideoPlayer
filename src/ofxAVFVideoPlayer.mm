@@ -103,6 +103,7 @@ bool ofxAVFVideoPlayer::loadMovie(string path)
     else {
         path = ofToDataPath(path, false);
         [moviePlayer loadFilePath:[NSString stringWithUTF8String:path.c_str()]];
+      @(AVAssetReferenceRestrictionForbidNone);
     }
 	[pool release];
     
@@ -178,7 +179,7 @@ void ofxAVFVideoPlayer::update()
         bHavePixelsChanged = bNewFrame;
     }
     else {
-        ofLogNotice("ofxAVFVideoPlayer::update()") << "Movie player not ready";
+        //ofLogNotice("ofxAVFVideoPlayer::update()") << "Movie player not ready";
     }
 }
 
