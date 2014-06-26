@@ -181,8 +181,8 @@ void ofxAVFVideoPlayer::update()
         bHavePixelsChanged = bNewFrame;
     }
     else {
-//        ofLogNotice("ofxAVFVideoPlayer::update()") << "Movie player not ready";
-      ofLogWarning("ofxAVFVideoPlayer::update() -- "+moviePath+" not ready"); // soso
+//      ofLogNotice("ofxAVFVideoPlayer::update()") << "Movie player not ready";
+//      ofLogWarning("ofxAVFVideoPlayer::update() -- "+moviePath+" not ready"); // soso
     }
 }
 
