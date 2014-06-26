@@ -25,6 +25,8 @@ ofxAVFVideoPlayer::ofxAVFVideoPlayer()
     currentLoopState = OF_LOOP_NORMAL;
     
     bTheFutureIsNow = false;
+  
+    bAmpEnabled = true;  // soso: True by default, ofxVideoPlayerObject sets to false
 }
 
 //--------------------------------------------------------------
@@ -33,9 +35,55 @@ ofxAVFVideoPlayer::~ofxAVFVideoPlayer()
 	close();
 }
 
+
+// soso
+//--------------------------------------------------------------
+void ofxAVFVideoPlayer::unloadMovie(){
+  
+  pixels.clear();
+	
+  if (moviePlayer != nil) {
+    
+    if (!isUnloaded){
+      isUnloaded  = true;
+      [moviePlayer unload];
+    }
+    
+  }
+  
+  bInitialized = false; 
+  bNewFrame = false;
+}
+
+// soso
+//--------------------------------------------------------------
+void ofxAVFVideoPlayer::reloadMovie(string path){
+  
+  //Need to reallocate pixels
+  //reallocatePixels();
+  
+	if (Poco::icompare(path.substr(0, 7), "http://")  == 0 ||
+      Poco::icompare(path.substr(0, 8), "https://") == 0 ||
+      Poco::icompare(path.substr(0, 7), "rtsp://")  == 0) {
+    [moviePlayer reloadURLPath:[NSString stringWithUTF8String:path.c_str()]];
+  }
+  else {
+    path = ofToDataPath(path, false);
+    [moviePlayer reloadFilePath:[NSString stringWithUTF8String:path.c_str()]];
+  }
+  
+  bTheFutureIsNow = moviePlayer.theFutureIsNow;
+  
+  isUnloaded = false;
+  
+}
+
+
 //--------------------------------------------------------------
 bool ofxAVFVideoPlayer::loadMovie(string path)
 {
+
+  moviePath = path; // soso: Using moviePath to save path for update() warning message.
 
     if (bInitialized) {
         close();
@@ -57,6 +105,7 @@ bool ofxAVFVideoPlayer::loadMovie(string path)
     else {
         path = ofToDataPath(path, false);
         [moviePlayer loadFilePath:[NSString stringWithUTF8String:path.c_str()]];
+      @(AVAssetReferenceRestrictionForbidNone);
     }
 	[pool release];
   
@@ -132,7 +181,8 @@ void ofxAVFVideoPlayer::update()
         bHavePixelsChanged = bNewFrame;
     }
     else {
-        ofLogNotice("ofxAVFVideoPlayer::update()") << "Movie player not ready";
+//      ofLogNotice("ofxAVFVideoPlayer::update()") << "Movie player not ready";
+//      ofLogWarning("ofxAVFVideoPlayer::update() -- "+moviePath+" not ready"); // soso
     }
 }
 
@@ -160,6 +210,23 @@ bool ofxAVFVideoPlayer::isFrameNew()
     return bNewFrame;
 }
 
+//soso
+//--------------------------------------------------------------
+void ofxAVFVideoPlayer::disableAmplitude(){
+
+  bAmpEnabled = false;
+  [moviePlayer disableAmplitude];
+}
+
+//soso
+//--------------------------------------------------------------
+void ofxAVFVideoPlayer::enableAmplitude(){
+  
+  bAmpEnabled = true;
+  [moviePlayer enableAmplitude];
+  
+}
+
 //--------------------------------------------------------------
 float ofxAVFVideoPlayer::getAmplitude(int channel)
 {
@@ -169,6 +236,10 @@ float ofxAVFVideoPlayer::getAmplitude(int channel)
 //--------------------------------------------------------------
 float ofxAVFVideoPlayer::getAmplitudeAt(float pos, int channel)
 {
+    // soso
+    if (!bAmpEnabled)
+      return -1;
+  
     if (bTheFutureIsNow == false) return 0;
     
     pos = ofClamp(pos, 0, 1);
@@ -465,7 +536,7 @@ bool ofxAVFVideoPlayer::setPixelFormat(ofPixelFormat newPixelFormat)
         // If we already have a movie loaded we need to reload
         // the movie with the new settings correctly allocated.
         if (isLoaded()) {
-            loadMovie(moviePath);
+            loadMovie(moviePath);  // TODO: wa: moviePath never seems to get set.
         }
     }
 	return true;
