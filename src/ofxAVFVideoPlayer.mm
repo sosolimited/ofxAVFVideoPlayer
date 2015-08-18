@@ -209,19 +209,19 @@ float * ofxAVFVideoPlayer::getAllAmplitudes()
 }
 
 //--------------------------------------------------------------
-unsigned char * ofxAVFVideoPlayer::getPixels()
+ofPixels& ofxAVFVideoPlayer::getPixels()
 {
     if (bTheFutureIsNow) {
-        return getPixelsRef().getPixels();
+			return pixels;
     }
     
-    if (!moviePlayer || ![moviePlayer isLoaded] || !bInitialized) return NULL;
-    
+//    if (!moviePlayer || ![moviePlayer isLoaded] || !bInitialized) return NULL;
+	
     if (bHavePixelsChanged) {
         fbo.readToPixels(pixels);
         bHavePixelsChanged = false; // Don't read pixels until next update() is called
     }
-    return pixels.getPixels();
+    return pixels;
 }
 
 //--------------------------------------------------------------
